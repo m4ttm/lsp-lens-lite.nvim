@@ -45,6 +45,7 @@ require'lsp-lens'.setup({
   ignore_filetype = {
     "prisma",
   },
+  only_filetype = {},
   -- Target Symbol Kinds to show lens information
   target_symbol_kinds = { SymbolKind.Function, SymbolKind.Method, SymbolKind.Interface },
   -- Symbol Kinds that may have target symbol kinds as children

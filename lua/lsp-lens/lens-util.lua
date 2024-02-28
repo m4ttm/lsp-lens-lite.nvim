@@ -339,24 +339,65 @@ function lsplens:procedure()
 
   local bufnr = vim.api.nvim_get_current_buf()
 
-  -- Ignored Filetype
-  if utils:table_find(config.config.ignore_filetype, vim.api.nvim_buf_get_option(bufnr, "filetype")) then
+  -- Only work with filetypes that are configured
+  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+  if not config.config.filetypes[filetype] then
     return
   end
 
-  local method = "textDocument/documentSymbol"
-  if lsp_support_method(bufnr, method) then
-    local params = { textDocument = lsp.util.make_text_document_params() }
-    lsp.buf_request_all(bufnr, method, params, function(document_symbols)
-      -- vim.pretty_print(lsp.buf_request_sync(0, "textDocument/codeLens", document_symbols, 1000))
-      local symbols = {}
-      symbols["bufnr"] = bufnr
-      symbols["document_symbols"] = document_symbols
-      symbols["document_functions"] = get_cur_document_functions(symbols.document_symbols)
-      symbols["document_functions_with_params"] = make_params(symbols.document_functions)
-      do_request(symbols)
-    end)
+  local symbols = {}
+  symbols["bufnr"] = bufnr
+  symbols["document_functions_with_params"] = {}
+
+  -- get a treesitter node for bufnr
+  local textDocument = lsp.util.make_text_document_params()
+  local ts_utils = require("nvim-treesitter.ts_utils")
+
+  local cursor_node = ts_utils.get_node_at_cursor()
+  local root = ts_utils.get_root_for_node(cursor_node)
+
+  function symbols_for_node(top_node, symbols_table)
+    for node in top_node:iter_children() do
+      local node_data = {}
+      node_data["query_params"] = {}
+      if vim.tbl_contains(config.config.filetypes[filetype].target_node_kinds, node:type()) then
+        local rangeA, rangeB, rangeC, rangeD = node:range()
+        node_data["rangeStart"] = {
+          character = rangeB,
+          line = rangeA,
+        }
+        node_data["rangeEnd"] = {
+          character = rangeD,
+          line = rangeC,
+        }
+        for subnode in node:iter_children() do
+          if subnode:type()=="identifier" then
+            node_data["name"] = vim.treesitter.get_node_text(subnode, bufnr)
+            local subRangeA, subRangeB, subRangeC, subRangeD = subnode:range()
+            node_data["selectionRangeStart"] = {
+              character = subRangeB,
+              line = subRangeA,
+            }
+            node_data["selectionRangeEnd"] = {
+              character = subRangeD,
+              line = subRangeC,
+            }
+          end
+        end
+      end
+      node_data["query_params"]["textDocument"] = textDocument
+      node_data["query_params"]["position"] = node_data["selectionRangeEnd"]
+      table.insert(symbols["document_functions_with_params"], node_data)
+
+      if vim.tbl_contains(config.config.filetypes[filetype].wrapper_node_kinds, node:type()) then
+        symbols_for_node(node, symbols_table)
+      end
+    end
   end
+
+  local top_node = root
+  symbols_for_node(top_node, symbols)
+  do_request(symbols)
 end
 
 return lsplens
