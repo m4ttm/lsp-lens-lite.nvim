@@ -1,6 +1,6 @@
-local lsplens = {}
-local config = require("lsp-lens.config")
-local utils = require("lsp-lens.utils")
+local lsplenslite = {}
+local config = require("lsp-lens-lite.config")
+local utils = require("lsp-lens-lite.utils")
 
 local lsp = vim.lsp
 local lsp_get_clients_method
@@ -159,7 +159,7 @@ local function display_lines(bufnr, query_results)
   if vim.fn.bufexists(bufnr) == 0 then
     return
   end
-  local ns_id = vim.api.nvim_create_namespace("lsp-lens")
+  local ns_id = vim.api.nvim_create_namespace("lsp-lens-lite")
   delete_existing_lines(bufnr, ns_id)
   for _, query in pairs(query_results or {}) do
     local virt_lines = {}
@@ -168,7 +168,7 @@ local function display_lines(bufnr, query_results)
     if not (display_str == "") then
       normalize_rangeStart_character(bufnr, query.rangeStart)
 
-      local vline = { { string.rep(" ", query.rangeStart.character) .. display_str, "LspLens" } }
+      local vline = { { string.rep(" ", query.rangeStart.character) .. display_str, "LspLensLite" } }
       table.insert(virt_lines, vline)
 
       if query.rangeStart.line < vim.api.nvim_buf_line_count(bufnr) then
@@ -313,27 +313,27 @@ local function make_params(results)
   return results
 end
 
-function lsplens:lsp_lens_on()
+function lsplenslite:lsp_lens_lite_on()
   config.config.enable = true
-  lsplens:procedure()
+  lsplenslite:procedure()
 end
 
-function lsplens:lsp_lens_off()
+function lsplenslite:lsp_lens_lite_off()
   config.config.enable = false
-  delete_existing_lines(0, vim.api.nvim_create_namespace("lsp-lens"))
+  delete_existing_lines(0, vim.api.nvim_create_namespace("lsp-lens-lite"))
 end
 
-function lsplens:lsp_lens_toggle()
+function lsplenslite:lsp_lens_lite_toggle()
   if config.config.enable then
-    lsplens:lsp_lens_off()
+    lsplenslite:lsp_lens_lite_off()
   else
-    lsplens:lsp_lens_on()
+    lsplenslite:lsp_lens_lite_on()
   end
 end
 
-function lsplens:procedure()
+function lsplenslite:procedure()
   if config.config.enable == false then
-    lsplens:lsp_lens_off()
+    lsplenslite:lsp_lens_lite_off()
     return
   end
 
@@ -400,4 +400,4 @@ function lsplens:procedure()
   do_request(symbols)
 end
 
-return lsplens
+return lsplenslite

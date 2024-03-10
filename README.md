@@ -1,6 +1,8 @@
-# lsp-lens.nvim
+# lsp-lens-lite.nvim
 
-Neovim plugin for displaying reference and definition info upon functions like JB's IDEA.
+Fork of [lsp-lens.nvim](https://github.com/VidocqH/lsp-lens.nvim). The original lsp-lens.nvim adds adds a code lens for LSPs which do not implement a `textDocument/codeLens` request. This is achieved by using the `textDocument/documentSymbol` request to get nodes to prefix with a code lens then counts the results of `textDocument/references` and `textDocument/definition` requests to create the code lens.
+
+A problem is that some LSPs do not implement a `textDocument/documentSymbol` request, so the original lsp-lens.nvim does not work with them. This fork adds a workaround for this problem by using treesitter to get the nodes to prefix with a code lens, and only uses the LSP to obtain results to count to display in the code lens.
 
 <img width="376" alt="image" src="https://user-images.githubusercontent.com/16725418/217580076-7064cc80-664c-4ade-8e66-a0c75801cf17.png">
 
@@ -16,14 +18,14 @@ lsp server correctly setup
 
 ```lua
 require("lazy").setup({
-  'VidocqH/lsp-lens.nvim'
+  'm4ttm/lsp-lens-lite.nvim'
 })
 ```
 
 ### Usage
 
 ```lua
-require'lsp-lens'.setup({})
+require'lsp-lens-lite'.setup({})
 ```
 
 ## Configs
@@ -33,7 +35,7 @@ Below is the default config
 ```lua
 local SymbolKind = vim.lsp.protocol.SymbolKind
 
-require'lsp-lens'.setup({
+require'lsp-lens-lite'.setup({
   enable = true,
   include_declaration = false,      -- Reference include declaration
   sections = {                      -- Enable / Disable specific request, formatter example looks 'Format Requests'
@@ -42,10 +44,7 @@ require'lsp-lens'.setup({
     implements = true,
     git_authors = true,
   },
-  ignore_filetype = {
-    "prisma",
-  },
-  only_filetype = {},
+  filetypes = {},
   -- Target Symbol Kinds to show lens information
   target_symbol_kinds = { SymbolKind.Function, SymbolKind.Method, SymbolKind.Interface },
   -- Symbol Kinds that may have target symbol kinds as children
@@ -56,7 +55,7 @@ require'lsp-lens'.setup({
 ### Format Requests
 
 ```lua
-require'lsp-lens'.setup({
+require'lsp-lens-lite'.setup({
   sections = {
     definition = function(count)
         return "Definitions: " .. count
@@ -78,16 +77,16 @@ require'lsp-lens'.setup({
 ## Commands
 
 ```
-:LspLensOn
-:LspLensOff
-:LspLensToggle
+:LspLensLiteOn
+:LspLensLiteOff
+:LspLensLiteToggle
 ```
 
 ## Highlight
 
 ```lua
 {
-  LspLens = { link = "Comment" },
+  LspLensLite = { link = "Comment" },
 }
 ```
 
