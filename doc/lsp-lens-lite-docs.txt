@@ -1,27 +1,36 @@
-*lsp-lens-lite-docs.txt*      For Neovim >= 0.8.0     Last change: 2024 February 28
+*lsp-lens-lite-docs.txt*     For Neovim >= 0.8.0    Last change: 2024 March 10
 
 ==============================================================================
-Table of Contents                            *lsp-lens-lite-docs-table-of-contents*
+Table of Contents                       *lsp-lens-lite-docs-table-of-contents*
 
-1. lsp-lens-lite.nvim                                 |lsp-lens-lite-docs-lsp-lens-lite.nvim|
-  - Installation                    |lsp-lens-lite-docs-lsp-lens-lite.nvim-installation|
-  - Configs                              |lsp-lens-lite-docs-lsp-lens-lite.nvim-configs|
-  - Commands                            |lsp-lens-lite-docs-lsp-lens-lite.nvim-commands|
-  - Highlight                          |lsp-lens-lite-docs-lsp-lens-lite.nvim-highlight|
-  - Known Bug                          |lsp-lens-lite-docs-lsp-lens-lite.nvim-known-bug|
-  - Thanks                                |lsp-lens-lite-docs-lsp-lens-lite.nvim-thanks|
+1. lsp-lens-lite.nvim                  |lsp-lens-lite-docs-lsp-lens-lite.nvim|
+  - Installation          |lsp-lens-lite-docs-lsp-lens-lite.nvim-installation|
+  - Configs                    |lsp-lens-lite-docs-lsp-lens-lite.nvim-configs|
+  - Commands                  |lsp-lens-lite-docs-lsp-lens-lite.nvim-commands|
+  - Highlight                |lsp-lens-lite-docs-lsp-lens-lite.nvim-highlight|
+  - Known Bug                |lsp-lens-lite-docs-lsp-lens-lite.nvim-known-bug|
+  - Thanks                      |lsp-lens-lite-docs-lsp-lens-lite.nvim-thanks|
 
 ==============================================================================
-1. lsp-lens-lite.nvim                                 *lsp-lens-lite-docs-lsp-lens-lite.nvim*
+1. lsp-lens-lite.nvim                  *lsp-lens-lite-docs-lsp-lens-lite.nvim*
 
-Neovim plugin for displaying reference and definition info upon functions like
-JB’s IDEA, using treesitter and LSP. Does not require LSP to support 
-`textDocument/documentSymbol`.
+Fork of lsp-lens.nvim <https://github.com/VidocqH/lsp-lens.nvim>. The original
+lsp-lens.nvim adds adds a code lens for LSPs which do not implement a
+`textDocument/codeLens` request. This is achieved by using the
+`textDocument/documentSymbol` request to get nodes to prefix with a code lens
+then counts the results of `textDocument/references` and
+`textDocument/definition` requests to create the code lens.
+
+A problem is that some LSPs do not implement a `textDocument/documentSymbol`
+request, so the original lsp-lens.nvim does not work with them. This fork adds
+a workaround for this problem by using treesitter to get the nodes to prefix
+with a code lens, and only uses the LSP to obtain results to count to display
+in the code lens.
 
 
 
 
-INSTALLATION                        *lsp-lens-lite-docs-lsp-lens-lite.nvim-installation*
+INSTALLATION              *lsp-lens-lite-docs-lsp-lens-lite.nvim-installation*
 
 
 PREREQUISITE ~
@@ -47,7 +56,7 @@ USAGE ~
 <
 
 
-CONFIGS                                  *lsp-lens-lite-docs-lsp-lens-lite.nvim-configs*
+CONFIGS                        *lsp-lens-lite-docs-lsp-lens-lite.nvim-configs*
 
 Below is the default config
 
@@ -63,10 +72,7 @@ Below is the default config
         implements = true,
         git_authors = true,
       },
-      ignore_filetype = {
-        "prisma",
-      },
-      only_filetype = {},
+      filetypes = {},
       -- Target Symbol Kinds to show lens information
       target_symbol_kinds = { SymbolKind.Function, SymbolKind.Method, SymbolKind.Interface },
       -- Symbol Kinds that may have target symbol kinds as children
@@ -97,7 +103,7 @@ FORMAT REQUESTS ~
 <
 
 
-COMMANDS                                *lsp-lens-lite-docs-lsp-lens-lite.nvim-commands*
+COMMANDS                      *lsp-lens-lite-docs-lsp-lens-lite.nvim-commands*
 
 >
     :LspLensLiteOn
@@ -106,7 +112,7 @@ COMMANDS                                *lsp-lens-lite-docs-lsp-lens-lite.nvim-c
 <
 
 
-HIGHLIGHT                              *lsp-lens-lite-docs-lsp-lens-lite.nvim-highlight*
+HIGHLIGHT                    *lsp-lens-lite-docs-lsp-lens-lite.nvim-highlight*
 
 >lua
     {
@@ -115,12 +121,12 @@ HIGHLIGHT                              *lsp-lens-lite-docs-lsp-lens-lite.nvim-hi
 <
 
 
-KNOWN BUG                              *lsp-lens-lite-docs-lsp-lens-lite.nvim-known-bug*
+KNOWN BUG                    *lsp-lens-lite-docs-lsp-lens-lite.nvim-known-bug*
 
 - Due to a known issue <https://github.com/neovim/neovim/issues/16166> with the neovim `nvim_buf_set_extmark()` api, the function and method defined on the first line of the code may cause the len to display at the -1 index line, which is not visible.
 
 
-THANKS                                    *lsp-lens-lite-docs-lsp-lens-lite.nvim-thanks*
+THANKS                          *lsp-lens-lite-docs-lsp-lens-lite.nvim-thanks*
 
 lspsaga by glepnir
 <https://github.com/glepnir/lspsaga.nvim#customize-appearance>
