@@ -1,4 +1,4 @@
-*lsp-lens-lite-docs.txt*     For Neovim >= 0.8.0    Last change: 2024 March 10
+*lsp-lens-lite-docs.txt*     For Neovim >= 0.8.0    Last change: 2024 March 29
 
 ==============================================================================
 Table of Contents                       *lsp-lens-lite-docs-table-of-contents*
