@@ -35,6 +35,7 @@ local defaults = {
         "function_definition",
         "interface_declaration",
         "library_declaration",
+        "modifier_definition",
         "struct_declaration", 
         "state_variable_declaration",
       },
